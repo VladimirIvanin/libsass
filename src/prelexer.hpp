@@ -345,6 +345,8 @@ namespace Sass {
     // Match SCSS variable names.
     const char* variable(const char* src);
     const char* calc_fn_call(const char* src);
+    // Match CSS special functions (var, env, attr, clamp, min, max)
+    const char* css_special_fn_call(const char* src);
 
     // IE stuff
     const char* ie_progid(const char* src);

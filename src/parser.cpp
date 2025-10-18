@@ -1364,6 +1364,9 @@ namespace Sass {
     else if (peek< sequence < calc_fn_call, exactly <'('> > >()) {
       return parse_calc_function();
     }
+    else if (peek< sequence < css_special_fn_call, exactly <'('> > >()) {
+      return parse_css_special_function();
+    }
     else if (lex < functional_schema >()) {
       return parse_function_call_schema();
     }
@@ -1578,6 +1581,16 @@ namespace Sass {
 
     if (lex< kwd_null >())
     { return SASS_MEMORY_NEW(Null, pstate); }
+
+    // Check for calc() function
+    if (peek< sequence < calc_fn_call, exactly <'('> > >()) {
+      return parse_css_special_function();
+    }
+
+    // Check for CSS special functions (var, env, attr, clamp, min, max) before identifier
+    if (peek< sequence < css_special_fn_call, exactly <'('> > >()) {
+      return parse_css_special_function();
+    }
 
     if (lex< identifier >()) {
       return color_or_string(lexed);
@@ -2001,6 +2014,51 @@ namespace Sass {
     return SASS_MEMORY_NEW(Function_Call, call_pos, name, args);
   }
 
+  // CSS special functions (var, env, attr, clamp, min, max) should be passed through as strings
+  String_Constant_Obj Parser::parse_css_special_function()
+  {
+    lex< identifier >();
+    sass::string name(lexed);
+    SourceSpan call_pos = pstate;
+
+    if (!lex< exactly<'('> >()) {
+      css_error("Invalid CSS", " after ", ": expected \"(\", was ");
+    }
+
+    // Find the matching closing parenthesis
+    const char* arg_beg = position;
+
+    // Skip over the entire function content including nested parentheses
+    // This will position us right before the closing ')'
+    const char* p = arg_beg;
+    int depth = 1;
+    bool in_squote = false;
+    bool in_dquote = false;
+
+    while (depth > 0 && *p) {
+      if (!in_squote && !in_dquote) {
+        if (*p == '(') depth++;
+        else if (*p == ')') depth--;
+        else if (*p == '"') in_dquote = true;
+        else if (*p == '\'') in_squote = true;
+      } else {
+        if (in_dquote && *p == '"' && *(p-1) != '\\') in_dquote = false;
+        else if (in_squote && *p == '\'' && *(p-1) != '\\') in_squote = false;
+      }
+      if (depth > 0) p++;
+    }
+
+    const char* arg_end = p;
+
+    // Build the complete function string: name(content)
+    sass::string result = name + "(" + sass::string(arg_beg, arg_end) + ")";
+
+    // Move position past the closing ')'
+    position = arg_end + 1;
+
+    return SASS_MEMORY_NEW(String_Constant, call_pos, result);
+  }
+
   String_Obj Parser::parse_url_function_string()
   {
     sass::string prefix("");
@@ -2075,7 +2133,11 @@ namespace Sass {
     Arguments_Obj args;
 
     if (normalized_name == "rgb" || normalized_name == "rgba" ||
-        normalized_name == "hsl" || normalized_name == "hsla") {
+        normalized_name == "hsl" || normalized_name == "hsla" ||
+        normalized_name == "hwb" ||
+        normalized_name == "lab" || normalized_name == "lch" ||
+        normalized_name == "oklab" || normalized_name == "oklch" ||
+        normalized_name == "color") {
       args = parse_color_arguments();
     } else {
       args = parse_arguments();

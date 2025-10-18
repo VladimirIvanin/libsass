@@ -279,6 +279,7 @@ namespace Sass {
     ExpressionObj parse_factor();
     ExpressionObj parse_value();
     Function_Call_Obj parse_calc_function();
+    String_Constant_Obj parse_css_special_function();
     Function_Call_Obj parse_function_call();
     Function_Call_Obj parse_function_call_schema();
     String_Obj parse_url_function_string();

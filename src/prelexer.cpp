@@ -1226,6 +1226,19 @@ namespace Sass {
       >(src);
     }
 
+    // Match CSS special functions: var, env, attr, clamp, min, max
+    // These functions should be passed through to CSS as-is
+    const char* css_special_fn_call(const char* src) {
+      return alternatives <
+        sequence < exactly < var_fn_kwd >, word_boundary >,
+        sequence < exactly < env_fn_kwd >, word_boundary >,
+        sequence < exactly < attr_fn_kwd >, word_boundary >,
+        sequence < exactly < clamp_fn_kwd >, word_boundary >,
+        sequence < exactly < min_fn_kwd >, word_boundary >,
+        sequence < exactly < max_fn_kwd >, word_boundary >
+      >(src);
+    }
+
     // Match Sass boolean keywords.
     const char* kwd_true(const char* src) {
       return word<true_kwd>(src);

@@ -103,6 +103,13 @@ namespace Sass {
     extern const char progid_kwd[]       = "progid";
     extern const char expression_kwd[]   = "expression";
     extern const char calc_fn_kwd[]      = "calc";
+    // CSS special function keywords
+    extern const char var_fn_kwd[]       = "var";
+    extern const char env_fn_kwd[]       = "env";
+    extern const char attr_fn_kwd[]      = "attr";
+    extern const char clamp_fn_kwd[]     = "clamp";
+    extern const char min_fn_kwd[]       = "min";
+    extern const char max_fn_kwd[]       = "max";
 
     extern const char almost_any_value_class[] = "\"'#!;{}";
 
