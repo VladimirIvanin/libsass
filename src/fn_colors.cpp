@@ -230,7 +230,7 @@ namespace Sass {
       }
 
       // Numeric values
-      double alpha = has_alpha_arg ? ARGVAL("$alpha") : 1.0;
+      double alpha = has_alpha_arg ? ALPHA_NUM("$alpha") : 1.0;
       return SASS_MEMORY_NEW(Color_HSLA,
         pstate,
         ARGVAL("$hue"),

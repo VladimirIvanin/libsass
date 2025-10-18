@@ -247,6 +247,7 @@ namespace Sass {
     Parameter_Obj parse_parameter();
     Mixin_Call_Obj parse_include_directive();
     Arguments_Obj parse_arguments();
+    Arguments_Obj parse_color_arguments();
     Argument_Obj parse_argument();
     Assignment_Obj parse_assignment();
     StyleRuleObj parse_ruleset(Lookahead lookahead);

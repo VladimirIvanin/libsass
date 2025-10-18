@@ -113,7 +113,8 @@ namespace Sass {
       Number tmpnr(val);
       tmpnr.reduce();
       if (tmpnr.unit() == "%") {
-        return std::min(std::max(tmpnr.value(), 0.0), 100.0);
+        // Convert percentage to 0-1 range for alpha channel
+        return std::min(std::max(tmpnr.value() / 100.0, 0.0), 1.0);
       } else {
         return std::min(std::max(tmpnr.value(), 0.0), 1.0);
       }

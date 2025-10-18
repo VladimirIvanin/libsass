@@ -681,7 +681,8 @@ namespace Sass {
     }
 
     // retain the originally specified color definition if unchanged
-    if (name != "") {
+    // but only if alpha is 1 (opaque)
+    if (name != "" && a >= 1) {
       ss << name;
     }
     else if (a >= 1) {

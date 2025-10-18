@@ -437,6 +437,89 @@ namespace Sass {
     return args;
   }
 
+  // Parse arguments for CSS Color Level 4 functions (rgb, rgba, hsl, hsla)
+  // Supports both old comma-separated syntax and new space-separated syntax
+  // Examples:
+  //   rgb(255, 0, 0)           - old syntax with commas
+  //   rgb(255 0 0)             - new syntax with spaces
+  //   rgb(255 0 0 / 0.5)       - new syntax with alpha using slash
+  //   rgba(255, 0, 0, 0.5)     - old syntax with commas
+  Arguments_Obj Parser::parse_color_arguments()
+  {
+    Arguments_Obj args = SASS_MEMORY_NEW(Arguments, pstate);
+    if (!lex_css< exactly<'('> >()) {
+      return args;
+    }
+
+    // Check if there's anything inside
+    if (peek_css< exactly<')'> >()) {
+      lex_css< exactly<')'> >();
+      return args;
+    }
+
+    // Parse first value (can't use parse_space_list because it treats / as division)
+    ExpressionObj val1 = parse_value();
+    if (!val1) {
+      css_error("Invalid CSS", " after ", ": expected expression (e.g. 1px, bold), was ");
+    }
+
+    // Check if we have comma-separated (old syntax) or space-separated (new syntax)
+    bool has_comma = lex_css< exactly<','> >();
+
+    if (has_comma) {
+      // Old comma-separated syntax: rgb(255, 0, 0) or rgba(255, 0, 0, 0.5)
+      args->append(SASS_MEMORY_NEW(Argument, pstate, val1, "", false, false));
+
+      // Parse remaining comma-separated arguments
+      while (!peek_css< exactly<')'> >()) {
+        ExpressionObj val = parse_space_list();
+        if (!val) {
+          css_error("Invalid CSS", " after ", ": expected expression, was ");
+        }
+        args->append(SASS_MEMORY_NEW(Argument, pstate, val, "", false, false));
+
+        if (!lex_css< exactly<','> >()) {
+          break;
+        }
+      }
+    } else {
+      // New space-separated syntax: rgb(255 0 0) or rgb(255 0 0 / 0.5)
+      // Parse individual space-separated values until we hit / or )
+      args->append(SASS_MEMORY_NEW(Argument, pstate, val1, "", false, false));
+
+      // Continue parsing space-separated values
+      while (!peek_css< exactly<'/'> >() && !peek_css< exactly<')'> >()) {
+        // Skip whitespace but don't consume comma or closing paren
+        lex < css_comments >();
+
+        if (peek_css< exactly<'/'> >() || peek_css< exactly<')'> >()) {
+          break;
+        }
+
+        ExpressionObj val = parse_value();
+        if (!val) {
+          break;
+        }
+        args->append(SASS_MEMORY_NEW(Argument, pstate, val, "", false, false));
+      }
+
+      // Check for slash (alpha separator in new syntax)
+      if (lex_css< exactly<'/'> >()) {
+        ExpressionObj alpha_val = parse_value();
+        if (!alpha_val) {
+          css_error("Invalid CSS", " after ", ": expected alpha value, was ");
+        }
+        args->append(SASS_MEMORY_NEW(Argument, pstate, alpha_val, "", false, false));
+      }
+    }
+
+    if (!lex_css< exactly<')'> >()) {
+      css_error("Invalid CSS", " after ", ": expected \")\", was ");
+    }
+
+    return args;
+  }
+
   Argument_Obj Parser::parse_argument()
   {
     if (peek< alternatives< exactly<','>, exactly< '{' >, exactly<';'> > >()) {
@@ -1986,7 +2069,18 @@ namespace Sass {
     { error("Cannot call content-exists() except within a mixin."); }
 
     SourceSpan call_pos = pstate;
-    Arguments_Obj args = parse_arguments();
+
+    // Use special parser for CSS Color Level 4 functions
+    sass::string normalized_name = Util::normalize_underscores(name);
+    Arguments_Obj args;
+
+    if (normalized_name == "rgb" || normalized_name == "rgba" ||
+        normalized_name == "hsl" || normalized_name == "hsla") {
+      args = parse_color_arguments();
+    } else {
+      args = parse_arguments();
+    }
+
     return SASS_MEMORY_NEW(Function_Call, call_pos, name, args);
   }
 
