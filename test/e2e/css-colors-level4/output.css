@@ -1,0 +1,114 @@
+.test-hwb {
+  color-red: red;
+  color-green: lime;
+  color-blue: blue;
+  color-light-red: #ff8080;
+  color-dark-red: #800000;
+  color-with-alpha: rgba(51, 178, 178, 0.5);
+}
+
+.test-lab {
+  color-black: black;
+  color-white: white;
+  color-gray: #777777;
+  color-colored: #d04685;
+  color-with-alpha: rgba(126, 125, 180, 0.8);
+}
+
+.test-lch {
+  color-black: black;
+  color-white: white;
+  color-reddish: #bf496b;
+  color-greenish: #7fb238;
+  color-with-alpha: rgba(137, 153, 208, 0.9);
+}
+
+.test-oklab {
+  color-black: black;
+  color-white: white;
+  color-gray: #777777;
+  color-colored: #9a89c7;
+  color-with-alpha: rgba(117, 184, 142, 0.75);
+}
+
+.test-oklch {
+  color-black: black;
+  color-white: white;
+  color-orange: #d38f52;
+  color-blue: #0055ff;
+  color-with-alpha: rgba(105, 180, 125, 0.85);
+}
+
+.test-rgb-old-syntax {
+  color-opaque: red;
+  color-with-alpha: rgba(255, 0, 0, 0.5);
+  color-full-transparent: rgba(0, 128, 255, 0);
+}
+
+.test-rgb-new-syntax {
+  color-with-alpha: rgba(255, 0, 0, 0.5);
+  color-with-slash: rgba(0, 128, 255, 0.8);
+  color-mixed: rgba(100, 200, 50, 0.3);
+}
+
+.test-hsl-old-syntax {
+  color-opaque: lime;
+  color-with-alpha: rgba(0, 0, 255, 0.7);
+  color-partial: rgba(64, 191, 191, 0.6);
+}
+
+.test-hsl-new-syntax {
+  color-with-alpha: rgba(0, 0, 255, 0.7);
+  color-with-slash: rgba(64, 191, 191, 0.6);
+  color-mixed: rgba(92, 230, 92, 0.9);
+}
+
+.test-rgb-space-syntax {
+  color-spaces: #6496c8;
+  color-spaces-alpha: rgba(50, 100, 150, 0.5);
+  color-percent: #80bfff;
+  color-percent-alpha: rgba(64, 128, 191, 0.8);
+  color-percent-alpha-percent: rgba(255, 0, 0, 0.5);
+  color-all-percent: rgba(204, 153, 102, 0.75);
+}
+
+.test-hsl-space-syntax {
+  color-spaces: #8585d6;
+  color-spaces-alpha: rgba(61, 183, 183, 0.7);
+  color-deg: lime;
+  color-unitless: #ffeb33;
+  color-alpha-percent: rgba(255, 0, 0, 0.5);
+  color-all-percent: rgba(199, 61, 245, 0.75);
+}
+
+.test-rgb-mixed-formats {
+  old-comma: #ff8000;
+  new-space: #ff8000;
+  old-alpha: rgba(255, 128, 0, 0.5);
+  new-alpha: rgba(255, 128, 0, 0.5);
+  new-alpha-comma: rgba(255, 128, 0, 0.5);
+}
+
+.test-hsl-mixed-formats {
+  old-comma: yellow;
+  new-space: yellow;
+  old-alpha: rgba(255, 255, 0, 0.5);
+  new-alpha: rgba(255, 255, 0, 0.5);
+  new-alpha-comma: rgba(255, 255, 0, 0.5);
+}
+
+.test-color-function {
+  color-srgb-red: red;
+  color-srgb-gray: gray;
+  color-srgb-alpha: rgba(204, 51, 77, 0.6);
+}
+
+.test-edge-cases {
+  rgb-zero-alpha: rgba(255, 0, 0, 0);
+  rgb-full-alpha: lime;
+  hsl-zero-alpha: rgba(0, 0, 255, 0);
+  hsl-full-alpha: #40bfbf;
+  hwb-zero: red;
+  hwb-both: gray;
+}
+

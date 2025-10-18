@@ -745,7 +745,7 @@ namespace Sass {
   void register_built_in_functions(Context& ctx, Env* env)
   {
     using namespace Functions;
-    // RGB Functions
+    // RGB Functions (CSS Colors Level 4: rgb() now supports optional alpha)
     register_function(ctx, rgb_sig, rgb, env);
     register_overload_stub(ctx, "rgba", env);
     register_function(ctx, rgba_4_sig, rgba_4, 4, env);
@@ -754,7 +754,7 @@ namespace Sass {
     register_function(ctx, green_sig, green, env);
     register_function(ctx, blue_sig, blue, env);
     register_function(ctx, mix_sig, mix, env);
-    // HSL Functions
+    // HSL Functions (CSS Colors Level 4: hsl() now supports optional alpha)
     register_function(ctx, hsl_sig, hsl, env);
     register_function(ctx, hsla_sig, hsla, env);
     register_function(ctx, hue_sig, hue, env);
@@ -780,6 +780,13 @@ namespace Sass {
     register_function(ctx, scale_color_sig, scale_color, env);
     register_function(ctx, change_color_sig, change_color, env);
     register_function(ctx, ie_hex_str_sig, ie_hex_str, env);
+    // CSS Colors Level 4 Functions
+    register_function(ctx, hwb_sig, hwb, env);
+    register_function(ctx, lab_sig, lab, env);
+    register_function(ctx, lch_sig, lch, env);
+    register_function(ctx, oklab_sig, oklab, env);
+    register_function(ctx, oklch_sig, oklch, env);
+    register_function(ctx, color_sig, color, env);
     // String Functions
     register_function(ctx, unquote_sig, sass_unquote, env);
     register_function(ctx, quote_sig, sass_quote, env);

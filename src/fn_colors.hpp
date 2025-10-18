@@ -49,6 +49,12 @@ namespace Sass {
     extern Signature scale_color_sig;
     extern Signature change_color_sig;
     extern Signature ie_hex_str_sig;
+    extern Signature hwb_sig;
+    extern Signature lab_sig;
+    extern Signature lch_sig;
+    extern Signature oklab_sig;
+    extern Signature oklch_sig;
+    extern Signature color_sig;
 
     BUILT_IN(rgb);
     BUILT_IN(rgba_4);
@@ -77,6 +83,14 @@ namespace Sass {
     BUILT_IN(scale_color);
     BUILT_IN(change_color);
     BUILT_IN(ie_hex_str);
+
+    // CSS Colors Level 4 functions
+    BUILT_IN(hwb);
+    BUILT_IN(lab);
+    BUILT_IN(lch);
+    BUILT_IN(oklab);
+    BUILT_IN(oklch);
+    BUILT_IN(color);
 
   }
 

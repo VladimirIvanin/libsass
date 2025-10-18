@@ -6,6 +6,7 @@
 #include "ast.hpp"
 #include "fn_utils.hpp"
 #include "fn_colors.hpp"
+#include "color_spaces.hpp"
 #include "util.hpp"
 #include "util_string.hpp"
 
@@ -31,29 +32,47 @@ namespace Sass {
 
     }
 
-    Signature rgb_sig = "rgb($red, $green, $blue)";
+    // CSS Colors Level 4: rgb() now supports optional 4th parameter for alpha
+    Signature rgb_sig = "rgb($red, $green, $blue, $alpha: 1)";
     BUILT_IN(rgb)
     {
-      if (
-        string_argument(env["$red"]) ||
-        string_argument(env["$green"]) ||
-        string_argument(env["$blue"])
-      ) {
-        return SASS_MEMORY_NEW(String_Constant, pstate, "rgb("
-                                                        + env["$red"]->to_string()
-                                                        + ", "
-                                                        + env["$green"]->to_string()
-                                                        + ", "
-                                                        + env["$blue"]->to_string()
-                                                        + ")"
-        );
+      // Check for string arguments (CSS custom properties, calc, var, etc.)
+      bool has_string = string_argument(env["$red"]) ||
+                       string_argument(env["$green"]) ||
+                       string_argument(env["$blue"]);
+
+      bool has_alpha_arg = env.has("$alpha");
+      bool alpha_is_string = has_alpha_arg && string_argument(env["$alpha"]);
+
+      if (has_string || alpha_is_string) {
+        // Output CSS syntax
+        sass::string result = "rgb("
+          + env["$red"]->to_string()
+          + (has_string ? ", " : " ")
+          + env["$green"]->to_string()
+          + (has_string ? ", " : " ")
+          + env["$blue"]->to_string();
+
+        // Add alpha if present and not default 1
+        if (has_alpha_arg) {
+          Number* alpha_num = Cast<Number>(env["$alpha"]);
+          if (alpha_is_string || !alpha_num || alpha_num->value() != 1.0) {
+            result += (has_string ? ", " : " / ") + env["$alpha"]->to_string();
+          }
+        }
+        result += ")";
+
+        return SASS_MEMORY_NEW(String_Constant, pstate, result);
       }
 
+      // Numeric values
+      double alpha = has_alpha_arg ? ALPHA_NUM("$alpha") : 1.0;
       return SASS_MEMORY_NEW(Color_RGBA,
                              pstate,
                              COLOR_NUM("$red"),
                              COLOR_NUM("$green"),
-                             COLOR_NUM("$blue"));
+                             COLOR_NUM("$blue"),
+                             alpha);
     }
 
     Signature rgba_4_sig = "rgba($red, $green, $blue, $alpha)";
@@ -177,31 +196,47 @@ namespace Sass {
     // HSL FUNCTIONS
     ////////////////
 
-    Signature hsl_sig = "hsl($hue, $saturation, $lightness)";
+    // CSS Colors Level 4: hsl() now supports optional 4th parameter for alpha
+    Signature hsl_sig = "hsl($hue, $saturation, $lightness, $alpha: 1)";
     BUILT_IN(hsl)
     {
-      if (
-        string_argument(env["$hue"]) ||
-        string_argument(env["$saturation"]) ||
-        string_argument(env["$lightness"])
-      ) {
-        return SASS_MEMORY_NEW(String_Constant, pstate, "hsl("
-                                                        + env["$hue"]->to_string()
-                                                        + ", "
-                                                        + env["$saturation"]->to_string()
-                                                        + ", "
-                                                        + env["$lightness"]->to_string()
-                                                        + ")"
-        );
+      // Check for string arguments (CSS custom properties, calc, var, etc.)
+      bool has_string = string_argument(env["$hue"]) ||
+                       string_argument(env["$saturation"]) ||
+                       string_argument(env["$lightness"]);
+
+      bool has_alpha_arg = env.has("$alpha");
+      bool alpha_is_string = has_alpha_arg && string_argument(env["$alpha"]);
+
+      if (has_string || alpha_is_string) {
+        // Output CSS syntax
+        sass::string result = "hsl("
+          + env["$hue"]->to_string()
+          + (has_string ? ", " : " ")
+          + env["$saturation"]->to_string()
+          + (has_string ? ", " : " ")
+          + env["$lightness"]->to_string();
+
+        // Add alpha if present and not default 1
+        if (has_alpha_arg) {
+          Number* alpha_num = Cast<Number>(env["$alpha"]);
+          if (alpha_is_string || !alpha_num || alpha_num->value() != 1.0) {
+            result += (has_string ? ", " : " / ") + env["$alpha"]->to_string();
+          }
+        }
+        result += ")";
+
+        return SASS_MEMORY_NEW(String_Constant, pstate, result);
       }
 
+      // Numeric values
+      double alpha = has_alpha_arg ? ARGVAL("$alpha") : 1.0;
       return SASS_MEMORY_NEW(Color_HSLA,
         pstate,
         ARGVAL("$hue"),
         ARGVAL("$saturation"),
         ARGVAL("$lightness"),
-        1.0);
-
+        alpha);
     }
 
     Signature hsla_sig = "hsla($hue, $saturation, $lightness, $alpha)";
@@ -589,6 +624,211 @@ namespace Sass {
       sass::string result = ss.str();
       Util::ascii_str_toupper(&result);
       return SASS_MEMORY_NEW(String_Quoted, pstate, result);
+    }
+
+    /////////////////////////////////////////////////////////////////////////
+    // CSS Colors Level 4 functions
+    /////////////////////////////////////////////////////////////////////////
+
+    Signature hwb_sig = "hwb($hue, $whiteness, $blackness, $alpha: 1)";
+    BUILT_IN(hwb)
+    {
+      // Check for string arguments (CSS custom properties, calc, var, etc.)
+      if (
+        string_argument(env["$hue"]) ||
+        string_argument(env["$whiteness"]) ||
+        string_argument(env["$blackness"])
+      ) {
+        sass::string result = "hwb("
+          + env["$hue"]->to_string()
+          + " "
+          + env["$whiteness"]->to_string()
+          + " "
+          + env["$blackness"]->to_string();
+
+        if (env.has("$alpha")) {
+          result += " / " + env["$alpha"]->to_string();
+        }
+        result += ")";
+
+        return SASS_MEMORY_NEW(String_Constant, pstate, result);
+      }
+
+      double hue = ARGVAL("$hue");
+      double whiteness = DARG_U_PRCT("$whiteness");
+      double blackness = DARG_U_PRCT("$blackness");
+      double alpha = env.has("$alpha") ? ALPHA_NUM("$alpha") : 1.0;
+
+      HWB hwb_color(hue, whiteness, blackness, alpha);
+      return hwb_color.toRGBA();
+    }
+
+    Signature lab_sig = "lab($lightness, $a, $b, $alpha: 1)";
+    BUILT_IN(lab)
+    {
+      if (
+        string_argument(env["$lightness"]) ||
+        string_argument(env["$a"]) ||
+        string_argument(env["$b"])
+      ) {
+        sass::string result = "lab("
+          + env["$lightness"]->to_string()
+          + " "
+          + env["$a"]->to_string()
+          + " "
+          + env["$b"]->to_string();
+
+        if (env.has("$alpha")) {
+          result += " / " + env["$alpha"]->to_string();
+        }
+        result += ")";
+
+        return SASS_MEMORY_NEW(String_Constant, pstate, result);
+      }
+
+      double lightness = DARG_U_PRCT("$lightness");
+      double a = ARGVAL("$a");
+      double b = ARGVAL("$b");
+      double alpha = env.has("$alpha") ? ALPHA_NUM("$alpha") : 1.0;
+
+      Lab lab_color(lightness, a, b, alpha);
+      return lab_color.toRGBA();
+    }
+
+    Signature lch_sig = "lch($lightness, $chroma, $hue, $alpha: 1)";
+    BUILT_IN(lch)
+    {
+      if (
+        string_argument(env["$lightness"]) ||
+        string_argument(env["$chroma"]) ||
+        string_argument(env["$hue"])
+      ) {
+        sass::string result = "lch("
+          + env["$lightness"]->to_string()
+          + " "
+          + env["$chroma"]->to_string()
+          + " "
+          + env["$hue"]->to_string();
+
+        if (env.has("$alpha")) {
+          result += " / " + env["$alpha"]->to_string();
+        }
+        result += ")";
+
+        return SASS_MEMORY_NEW(String_Constant, pstate, result);
+      }
+
+      double lightness = DARG_U_PRCT("$lightness");
+      double chroma = ARGVAL("$chroma");
+      double hue = ARGVAL("$hue");
+      double alpha = env.has("$alpha") ? ALPHA_NUM("$alpha") : 1.0;
+
+      LCH lch_color(lightness, chroma, hue, alpha);
+      return lch_color.toRGBA();
+    }
+
+    Signature oklab_sig = "oklab($lightness, $a, $b, $alpha: 1)";
+    BUILT_IN(oklab)
+    {
+      if (
+        string_argument(env["$lightness"]) ||
+        string_argument(env["$a"]) ||
+        string_argument(env["$b"])
+      ) {
+        sass::string result = "oklab("
+          + env["$lightness"]->to_string()
+          + " "
+          + env["$a"]->to_string()
+          + " "
+          + env["$b"]->to_string();
+
+        if (env.has("$alpha")) {
+          result += " / " + env["$alpha"]->to_string();
+        }
+        result += ")";
+
+        return SASS_MEMORY_NEW(String_Constant, pstate, result);
+      }
+
+      // OKLab uses 0-1 range for lightness, not percentage
+      double lightness = DARG_U_FACT("$lightness");
+      double a = ARGVAL("$a");
+      double b = ARGVAL("$b");
+      double alpha = env.has("$alpha") ? ALPHA_NUM("$alpha") : 1.0;
+
+      OKLab oklab_color(lightness, a, b, alpha);
+      return oklab_color.toRGBA();
+    }
+
+    Signature oklch_sig = "oklch($lightness, $chroma, $hue, $alpha: 1)";
+    BUILT_IN(oklch)
+    {
+      if (
+        string_argument(env["$lightness"]) ||
+        string_argument(env["$chroma"]) ||
+        string_argument(env["$hue"])
+      ) {
+        sass::string result = "oklch("
+          + env["$lightness"]->to_string()
+          + " "
+          + env["$chroma"]->to_string()
+          + " "
+          + env["$hue"]->to_string();
+
+        if (env.has("$alpha")) {
+          result += " / " + env["$alpha"]->to_string();
+        }
+        result += ")";
+
+        return SASS_MEMORY_NEW(String_Constant, pstate, result);
+      }
+
+      // OKLCH uses 0-1 range for lightness, not percentage
+      double lightness = DARG_U_FACT("$lightness");
+      double chroma = ARGVAL("$chroma");
+      double hue = ARGVAL("$hue");
+      double alpha = env.has("$alpha") ? ALPHA_NUM("$alpha") : 1.0;
+
+      OKLCH oklch_color(lightness, chroma, hue, alpha);
+      return oklch_color.toRGBA();
+    }
+
+    Signature color_sig = "color($space, $channel1, $channel2, $channel3, $alpha: 1)";
+    BUILT_IN(color)
+    {
+      // Get the color space name
+      String_Constant* space_str = Cast<String_Constant>(env["$space"]);
+      if (!space_str) {
+        error("$space: " + env["$space"]->to_string() + " is not a string.", pstate, traces);
+      }
+
+      sass::string space = space_str->value();
+
+      // For now, support the most common color spaces
+      // Full implementation would support: srgb, srgb-linear, display-p3, a98-rgb, prophoto-rgb, rec2020, xyz, xyz-d50, xyz-d65
+
+      if (space == "srgb" || space == "rgb") {
+        // sRGB is the same as legacy RGB
+        double r = ARGVAL("$channel1");
+        double g = ARGVAL("$channel2");
+        double b = ARGVAL("$channel3");
+        double alpha = env.has("$alpha") ? ALPHA_NUM("$alpha") : 1.0;
+
+        return SASS_MEMORY_NEW(Color_RGBA, pstate, r * 255.0, g * 255.0, b * 255.0, alpha);
+      }
+
+      // For other color spaces, output as CSS string for browser support
+      sass::string result = "color(" + space + " "
+        + env["$channel1"]->to_string() + " "
+        + env["$channel2"]->to_string() + " "
+        + env["$channel3"]->to_string();
+
+      if (env.has("$alpha")) {
+        result += " / " + env["$alpha"]->to_string();
+      }
+      result += ")";
+
+      return SASS_MEMORY_NEW(String_Constant, pstate, result);
     }
 
   }
