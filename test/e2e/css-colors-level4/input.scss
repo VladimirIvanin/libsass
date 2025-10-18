@@ -1,0 +1,113 @@
+.test-hwb {
+  color-red: hwb(0, 0%, 0%);
+  color-green: hwb(120, 0%, 0%);
+  color-blue: hwb(240, 0%, 0%);
+  color-light-red: hwb(0, 50%, 0%);
+  color-dark-red: hwb(0, 0%, 50%);
+  color-with-alpha: hwb(180, 20%, 10%, 0.5);
+}
+
+.test-lab {
+  color-black: lab(0%, 0, 0);
+  color-white: lab(100%, 0, 0);
+  color-gray: lab(50%, 0, 0);
+  color-colored: lab(50%, 50, 25);
+  color-with-alpha: lab(60%, 30, -40, 0.8);
+}
+
+.test-lch {
+  color-black: lch(0%, 0, 0);
+  color-white: lch(100%, 0, 0);
+  color-reddish: lch(50%, 50, 40);
+  color-greenish: lch(60%, 60, 130);
+  color-with-alpha: lch(70%, 40, 220, 0.9);
+}
+
+.test-oklab {
+  color-black: oklab(0, 0, 0);
+  color-white: oklab(1, 0, 0);
+  color-gray: oklab(0.5, 0, 0);
+  color-colored: oklab(0.6, 0.1, -0.1);
+  color-with-alpha: oklab(0.7, -0.05, 0.08, 0.75);
+}
+
+.test-oklch {
+  color-black: oklch(0, 0, 0);
+  color-white: oklch(1, 0, 0);
+  color-orange: oklch(0.6, 0.15, 50);
+  color-blue: oklch(0.5, 0.2, 240);
+  color-with-alpha: oklch(0.65, 0.12, 150, 0.85);
+}
+
+.test-rgb-old-syntax {
+  color-opaque: rgb(255, 0, 0);
+  color-with-alpha: rgba(255, 0, 0, 0.5);
+  color-full-transparent: rgba(0, 128, 255, 0);
+}
+
+.test-rgb-new-syntax {
+  color-with-alpha: rgb(255, 0, 0, 0.5);
+  color-with-slash: rgb(0 128 255 / 0.8);
+  color-mixed: rgb(100, 200, 50, 0.3);
+}
+
+.test-hsl-old-syntax {
+  color-opaque: hsl(120, 100%, 50%);
+  color-with-alpha: hsla(240, 100%, 50%, 0.7);
+  color-partial: hsla(180, 50%, 50%, 0.6);
+}
+
+.test-hsl-new-syntax {
+  color-with-alpha: hsl(240, 100%, 50%, 0.7);
+  color-with-slash: hsl(180 50% 50% / 0.6);
+  color-mixed: hsl(120deg, 80%, 60%, 0.9);
+}
+
+.test-rgb-space-syntax {
+  color-spaces: rgb(100 150 200);
+  color-spaces-alpha: rgb(50 100 150 / 0.5);
+  color-percent: rgb(50% 75% 100%);
+  color-percent-alpha: rgb(25% 50% 75% / 0.8);
+  color-percent-alpha-percent: rgb(100% 0% 0% / 50%);
+  color-all-percent: rgb(80% 60% 40% / 75%);
+}
+
+.test-hsl-space-syntax {
+  color-spaces: hsl(240 60% 70%);
+  color-spaces-alpha: hsl(180 50% 60% / 0.7);
+  color-deg: hsl(120deg 100% 50%);
+  color-unitless: hsl(60 80% 50% / 1);
+  color-alpha-percent: hsl(0 100% 50% / 50%);
+  color-all-percent: hsl(270 80% 60% / 75%);
+}
+
+.test-rgb-mixed-formats {
+  old-comma: rgb(255, 128, 0);
+  new-space: rgb(255 128 0);
+  old-alpha: rgba(255, 128, 0, 0.5);
+  new-alpha: rgb(255 128 0 / 0.5);
+  new-alpha-comma: rgb(255, 128, 0, 0.5);
+}
+
+.test-hsl-mixed-formats {
+  old-comma: hsl(60, 100%, 50%);
+  new-space: hsl(60 100% 50%);
+  old-alpha: hsla(60, 100%, 50%, 0.5);
+  new-alpha: hsl(60 100% 50% / 0.5);
+  new-alpha-comma: hsl(60, 100%, 50%, 0.5);
+}
+
+.test-color-function {
+  color-srgb-red: color(srgb, 1, 0, 0);
+  color-srgb-gray: color(srgb, 0.5, 0.5, 0.5);
+  color-srgb-alpha: color(srgb, 0.8, 0.2, 0.3, 0.6);
+}
+
+.test-edge-cases {
+  rgb-zero-alpha: rgb(255, 0, 0, 0);
+  rgb-full-alpha: rgb(0, 255, 0, 1);
+  hsl-zero-alpha: hsl(240, 100%, 50%, 0);
+  hsl-full-alpha: hsl(180, 50%, 50%, 1.0);
+  hwb-zero: hwb(0, 0%, 0%);
+  hwb-both: hwb(0, 50%, 50%);
+}
